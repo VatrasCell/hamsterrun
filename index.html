@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Hamsterrun</title>
     <meta charset="utf-8">
-	<link rel="stylesheet" href="../css/normalize.css">
+	<!--<link rel="stylesheet" href="../css/normalize.css">
 	<link rel="stylesheet" href="../css/main.css">
-	<script src="../js/vendor/modernizr.js"></script>
+	<script src="../js/vendor/modernizr.js"></script>-->
 	
 	<meta name="viewport" content="width=device-width">
 	<meta name="viewport" content="initial-scale=1.0">
 	
-	<script type="text/javascript" src="js/phaser.js"></script>
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+	<script type="text/javascript" src="js/consts.js"></script>
     <script type="text/javascript" src="js/newGame.js"></script>
 	<script type="text/javascript" src="js/game.js"></script>
     <script type="text/javascript" src="js/gameover.js"></script>
@@ -20,7 +21,7 @@
 	<script type="text/javascript">
 		var game = null;
 		window.addEventListener('load', function() {
-			game = new Phaser.Game(480, 320, Phaser.CANVAS, 'the-game', newGame, false, false);
+			game = new Phaser.Game(GameApp.CANVAS_WIDTH, GameApp.CANVAS_HEIGHT, Phaser.CANVAS, 'the-game', theGame, false, false);
                            game.state.add('theGame', theGame);
                             game.state.add('newGame', newGame);
                             game.state.add('credits', credits);

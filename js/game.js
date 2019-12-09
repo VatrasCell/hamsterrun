@@ -39,8 +39,6 @@ var theGame = {
                 music.loopFull();
                 music.volume = 0.7;
                 
-                tree = game.add.sprite(550, 237, 'tree', 0);
-                
                 //Wolken
                 cloud1 = game.add.sprite(game.world.width +20, 50, 'cloud', 0);
                 cloud1.alpha = 1;
@@ -64,16 +62,14 @@ var theGame = {
                 
                 blocks = game.add.physicsGroup();
                 addNewBlock();
-                
-               
-                
-                
-                //Gras
-                gras = game.add.tileSprite(0, 310, 480, 70, 'gras');
-                gras.animations.add('bg',[0], 2, true).play();
-                
-                
 
+                createGround();
+
+                createHeart();
+
+                createPlayer();
+
+                createPointLabel();
                 
                //Wolkenanimation
                 game.add.tween(cloud1).to({
@@ -96,44 +92,22 @@ var theGame = {
                     x: -100
                 },12000).loop(-1).start();
                 
-                game.add.tween(tree).to({
-                    x: -25
-                },9800).loop(-1).start();
-                
-                herz = game.add.sprite(25, 25, 'herz', 0);
-                herz.scale.setTo(0.8, 0.8);
-                herz.animations.add('full', [0], 1, false);
-                herz.animations.add('null', [1], 1, false);
-                
-                fallen = game.add.physicsGroup();
-                
-                addNewFalle();
-                falle.kill();
-                fallen.children.length = 0;
-                
-                //Player
-                player = game.add.sprite(50, 230, 'player', 0);
-                player.animations.add('stand',[1], 1,true).play();
-                player.animations.add('running', [0, 1], 10, true);
-                player.animations.add('jump', [0], 10, true);
-                player.animations.add('fall', [1], 10, true);
-                player.animations.add('die', [2], 1);
-                player.animations.add('die2', [3], 1);
-                game.physics.arcade.enable(player);
-                game.physics.arcade.enable(gras);
-                player.body.gravity.y = 700;
-                player.body.collideWorldBounds = true;
-                gras.body.mass = 700; 
-                player.body.mass = 500;   
-                gras.body.immovable = true;
-                //player.body.setSize(75,50);
                 
                 
                 
-                player.anchor.setTo(0.5, 0.5);
+                
+                //fallen = game.add.physicsGroup();
+                
+                //addNewFalle();
+                //falle.kill();
+                //fallen.children.length = 0;
+                
+                
+
+
                 coin.anchor.setTo(0.5, 0.5);
                 tree.anchor.setTo(0.5, 0.5);
-                text = game.add.text(400, 20, points);
+                
                 restart = game.add.text(200, 200, '');
                 oldPos = player.position.y;
 
@@ -182,7 +156,7 @@ var theGame = {
                 block.kill();
             });
             
-             game.physics.arcade.overlap(player, fallen, function(player, falle, points) {
+            /* game.physics.arcade.overlap(player, fallen, function(player, falle, points) {
                 if (isDead) { 
                     return;
                 }
@@ -192,7 +166,7 @@ var theGame = {
                 tot = 'falle';
                 killHamster();
                 
-            });
+            });*/
 
             if((game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) && (!lock || double <= 1) && !isDead) {
                 lock = true;
@@ -238,20 +212,20 @@ var theGame = {
                 addNewBlock();
             }
 
-             if(timerFalle == 50 && !isWin && !isDead) {
+            /* if(timerFalle == 50 && !isWin && !isDead) {
                 if(fallen.children.length < 1) {
                     addNewFalle();
                 }
-            }
+            }*/
             
             if(coin.position.x <= -25) {
                 coin.kill();
             }
             
-            if(falle.position.x <= -25) {
+            /*if(falle.position.x <= -25) {
                 falle.kill();
                 fallen.children.length = 0;
-            }
+            }*/
             
             if(block.position.x <= -25) {
                 block.kill();
@@ -427,3 +401,60 @@ var playChew = function() {
     
     chew = game.sound.play(sound);
 };
+
+var createGround = function() {
+
+    //Gras
+    gras = game.add.tileSprite(0, 0, GameApp.CANVAS_WIDTH, 80 * GameApp.SCALE_RATIO, 'gras');
+    gras.scale.setTo(GameApp.SCALE_RATIO, GameApp.SCALE_RATIO);
+    gras.y = getPosition(BOTTOM, gras.height);
+    gras.animations.add('bg',[0], 2, true).play();
+
+    //tree
+    tree = game.add.sprite(0, 0, 'tree', 0);
+    tree.scale.setTo(1.5 * GameApp.SCALE_RATIO, 1.5 * GameApp.SCALE_RATIO);
+    tree.x = getPosition(RIGHT, 0);
+    tree.y = getPosition(BOTTOM - yOffset(7.75), tree.height);
+
+    game.add.tween(tree).to({
+        x: -25
+    },9800).loop(-1).start();
+};
+
+var createHeart = function() {
+    herz = game.add.sprite(0, 0, 'herz', 0);
+    herz.scale.setTo(GameApp.SCALE_RATIO, GameApp.SCALE_RATIO);
+    herz.x = getPosition(LEFT + xOffset(3), herz.width);
+    herz.y = getPosition(TOP + yOffset(6), herz.height);
+    herz.animations.add('full', [0], 1, false);
+    herz.animations.add('null', [1], 1, false);
+};
+
+var createPlayer = function() {
+    //Player
+    player = game.add.sprite(50, 230, 'player', 0);
+    player.animations.add('stand',[1], 1,true).play();
+    player.animations.add('running', [0, 1], 10, true);
+    player.animations.add('jump', [0], 10, true);
+    player.animations.add('fall', [1], 10, true);
+    player.animations.add('die', [2], 1);
+    player.animations.add('die2', [3], 1);
+    game.physics.arcade.enable(player);
+    game.physics.arcade.enable(gras);
+    player.body.gravity.y = 700;
+    player.body.collideWorldBounds = true;
+    gras.body.mass = 700; 
+    player.body.mass = 500;   
+    gras.body.immovable = true;
+    player.scale.setTo(GameApp.SCALE_RATIO, GameApp.SCALE_RATIO);
+    player.x = getPosition(LEFT + xOffset(10), player.width); 
+    player.anchor.setTo(0.5, 0.5);
+};
+
+var createPointLabel = function() {
+    var style = { font: 30 * GameApp.SCALE_RATIO + "px Consolas", fill: "black", 
+            boundsAlignH: "center", boundsAlignV: "middle" };
+    text = game.add.text(0, 0, points, style);
+    text.x = getPosition(RIGHT - xOffset(8), text.width);
+    text.y = getPosition(TOP + yOffset(7), text.height);
+}
