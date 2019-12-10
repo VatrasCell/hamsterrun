@@ -38,24 +38,11 @@ var theGame = {
                 music = game.sound.play('bgmusic');
                 music.loopFull();
                 music.volume = 0.7;
-                
-                //Wolken
-                cloud1 = game.add.sprite(game.world.width +20, 50, 'cloud', 0);
-                cloud1.alpha = 1;
-                cloud2 = game.add.sprite(game.world.width +20, 60, 'cloud', 0);
-                cloud2.alpha = 1;
-                cloud3 = game.add.sprite(game.world.width +20, 10, 'cloud', 0);
-                cloud3.alpha = 1;
-                cloud4 = game.add.sprite(game.world.width +20, 20, 'cloud', 0);
-                cloud4.alpha = 1;
-                cloud5 = game.add.sprite(game.world.width +20, 40, 'cloud', 0);
-                cloud5.alpha = 1;
-            
-                cloud1.scale.setTo(0.7, 0.7);
-                cloud2.scale.setTo(0.5, 0.5);
-                cloud3.scale.setTo(0.6, 0.6);
-                cloud4.scale.setTo(0.4, 0.4);
-                cloud5.scale.setTo(0.8, 0.8);
+
+                clouds = game.add.physicsGroup();
+                createCloud();
+
+                createGround();
                 
                 coins = game.add.physicsGroup();
                 addNewCoin();
@@ -63,52 +50,23 @@ var theGame = {
                 blocks = game.add.physicsGroup();
                 addNewBlock();
 
-                createGround();
-
                 createHeart();
 
                 createPlayer();
 
                 createPointLabel();
+  
+                fallen = game.add.physicsGroup();
                 
-               //Wolkenanimation
-                game.add.tween(cloud1).to({
-                    x: -100
-                },17000).loop(-1).start();
-                
-                game.add.tween(cloud2).to({
-                    x: -100
-                },10000).loop(-1).start();
-                
-                 game.add.tween(cloud3).to({
-                    x: -100
-                },15000).loop(-1).start();
-                
-                 game.add.tween(cloud4).to({
-                     x: -100
-                },20000).loop(-1).start();
-                
-                 game.add.tween(cloud5).to({
-                    x: -100
-                },12000).loop(-1).start();
-                
-                
-                
-                
-                
-                //fallen = game.add.physicsGroup();
-                
-                //addNewFalle();
-                //falle.kill();
-                //fallen.children.length = 0;
-                
-                
-
+                addNewFalle();
+                falle.kill();
+                fallen.children.length = 0;
 
                 coin.anchor.setTo(0.5, 0.5);
                 tree.anchor.setTo(0.5, 0.5);
                 
                 restart = game.add.text(200, 200, '');
+
                 oldPos = player.position.y;
 
                 block.animations.add('byBlock' [0,1,2], 10, true);
@@ -119,9 +77,12 @@ var theGame = {
             var posY = player.position.y;
             var timer = game.rnd.integerInRange(0, 165);
             var timerEny = game.rnd.integerInRange(0, 120);
+            var timerCloud = game.rnd.integerInRange(0, 50);
             var timerFalle = game.rnd.integerInRange(0, 300);
             
-            game.physics.arcade.collide(player, gras);
+            game.physics.arcade.collide(player, gras, function() {
+                player.angle = 0;
+            });
             
             if(oldPos > posY && !isDead) {
                isJump = true;
@@ -138,6 +99,8 @@ var theGame = {
                player.angle += 1.3;
                jump = 'down';   
             }
+
+            /*
             game.physics.arcade.overlap(player, coins, function(player, coin) {
                 if (isDead) { 
                     return;
@@ -154,7 +117,7 @@ var theGame = {
                 killPoint();
                 playChew();
                 block.kill();
-            });
+            });*/
             
             /* game.physics.arcade.overlap(player, fallen, function(player, falle, points) {
                 if (isDead) { 
@@ -170,7 +133,7 @@ var theGame = {
 
             if((game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) && (!lock || double <= 1) && !isDead) {
                 lock = true;
-                player.body.velocity.y = -400;
+                player.body.velocity.y = -500;
             }
             
             if((game.input.keyboard.isDown(Phaser.Keyboard.ENTER)) && isWin) {
@@ -200,16 +163,16 @@ var theGame = {
                 double = 0;
             }
             
-            if(player.position.y >= 275 && !isDead) {
-                player.angle = 0;
-            }
-            
             if(timer == 5 && !isWin && !isDead) {
                 addNewCoin();
             }
             
-             if(timerEny == 15 && !isWin && !isDead) {
+            if(timerEny == 15 && !isWin && !isDead) {
                 addNewBlock();
+            }
+
+            if(timerCloud == 15) {
+                createCloud();
             }
 
             /* if(timerFalle == 50 && !isWin && !isDead) {
@@ -220,6 +183,10 @@ var theGame = {
             
             if(coin.position.x <= -25) {
                 coin.kill();
+            }
+
+            if(cloud.position.x <= -25) {
+                cloud.kill();
             }
             
             /*if(falle.position.x <= -25) {
@@ -259,25 +226,25 @@ var theGame = {
                 text.setText('WIN!');
                 restart.setText('Push Enter to Restart');
                 coin.kill();
-                falle.kill();
+                //falle.kill();
                 block.kill();
                 isWin = true;
             }
 
 	},
 	render: function() {
-//           game.debug.body(player);
-//            for(var i =0; i < coins.children.length; i++) {
-//                game.debug.body(coins.children[i])
-//            }
-//            for(var i =0; i < fallen.children.length; i++) {
-//                game.debug.body(fallen.children[i])
-//          }
+           game.debug.body(player);
+            for(var i =0; i < coins.children.length; i++) {
+                game.debug.body(coins.children[i])
+            }
+            for(var i =0; i < fallen.children.length; i++) {
+                game.debug.body(fallen.children[i])
+          }
 	}
 };
 
 var addNewCoin = function() {
-    var y = game.rnd.integerInRange(10, 200);
+    var y = game.rnd.integerInRange(TOP + yOffset(10), TOP + yOffset(60));
     var i = game.rnd.integerInRange(0, 2);
     var texture;
     
@@ -291,19 +258,19 @@ var addNewCoin = function() {
         texture = 'coin3';
     }
     
-    coin = game.add.sprite(550, y, texture);
+    coin = game.add.sprite(GameApp.CANVAS_WIDTH + 20, y, texture);
     coin.anchor.setTo(0.5, 0.5);
-    coin.scale.setTo(0.85, 0.85);
+    coin.scale.setTo(0.85 * GameApp.SCALE_RATIO, 0.85 * GameApp.SCALE_RATIO);
     game.physics.arcade.enable(coin);
-    coin.body.setSize(20,20)
+    coin.body.setSize(20 * GameApp.SCALE_RATIO, 20 * GameApp.SCALE_RATIO)
 
     coins.add(coin);                
 
-    coin.body.velocity.x = game.rnd.integerInRange( -250, -150);
+    coin.body.velocity.x = game.rnd.integerInRange( -450, -300);
 };
 
 var addNewBlock = function() {
-    var y = game.rnd.integerInRange(10, 200);
+    var y = game.rnd.integerInRange(TOP + yOffset(20), TOP + yOffset(70));
     
     var i = game.rnd.integerInRange(0, 2);
     var texture;
@@ -318,15 +285,15 @@ var addNewBlock = function() {
         texture = 'block3';
     }
     
-    block = game.add.sprite(550, y, texture);
+    block = game.add.sprite(GameApp.CANVAS_WIDTH + 20, y, texture);
     game.physics.arcade.enable(block);
     blocks.add(block);
     block.anchor.setTo(0.5, 0.5);
 
-    block.scale.setTo(0.85, 0.85);
+    block.scale.setTo(0.85 * GameApp.SCALE_RATIO, 0.85 * GameApp.SCALE_RATIO);
     block.body.setSize(20,20);
 
-    block.body.velocity.x = game.rnd.integerInRange( -200, -150);
+    block.body.velocity.x = game.rnd.integerInRange( -525, -350);
 };
 
 var addNewFalle = function() {
@@ -457,4 +424,20 @@ var createPointLabel = function() {
     text = game.add.text(0, 0, points, style);
     text.x = getPosition(RIGHT - xOffset(8), text.width);
     text.y = getPosition(TOP + yOffset(7), text.height);
+}
+
+var createCloud = function() {
+    var y = game.rnd.integerInRange(TOP + yOffset(5), TOP + yOffset(40));
+    cloud = game.add.sprite(GameApp.CANVAS_WIDTH + 20, y, 'cloud', 0);
+    cloud.alpha = getRandomArbitrary(0.5, 1.1);
+
+    cloud.anchor.setTo(0.5, 0.5);
+    var size = getRandomArbitrary(0.5, 2.1);
+    cloud.scale.setTo(size * GameApp.SCALE_RATIO, size * GameApp.SCALE_RATIO);
+    game.physics.arcade.enable(cloud);
+    //cloud.body.setSize(20,20)
+
+    clouds.add(cloud);                
+
+    cloud.body.velocity.x = game.rnd.integerInRange( -250, -150);
 }

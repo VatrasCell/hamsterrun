@@ -30,7 +30,6 @@ const RIGHT = GameApp.CANVAS_WIDTH;
 const BOTTOM = GameApp.CANVAS_HEIGHT;
 
 function getPosition(pos, obj_size) {
-    console.log(pos, obj_size);
     return pos - obj_size / 2;
 }
 
@@ -40,4 +39,11 @@ function xOffset(percent) {
 
 function yOffset(percent) {
     return GameApp.CANVAS_HEIGHT * percent / 100;
+}
+
+/**
+ * Returns a random number between min (inclusive) and max (exclusive)
+ */
+function getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
 }
