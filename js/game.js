@@ -9,27 +9,30 @@ var double = 0;
 var isDead = false;
 var isWin = false;
 
+const COLL_BOUND_SIZE = 0.5 * GameApp.SCALE_RATIO;
+const COLL_BOUND_OFFSET = 7 * GameApp.SCALE_RATIO;
+
 var theGame = {
 	preload: function() {
-		game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;                
-                game.load.spritesheet('gras', 'assets/gras7.png', 70, 40);
-                game.load.image('cheese', 'assets/cheese.png');
-                game.load.spritesheet('player', 'assets/hamster.png', 80, 56);
-                game.load.spritesheet('cloud', 'assets/cloud.png', 127, 71);
-                game.load.image('coin', 'assets/kaese2.png');
-                game.load.image('coin2', 'assets/gurke3.png');
-                game.load.image('coin3', 'assets/Karotte2.png');
-                game.load.image('block', 'assets/schokolade2.png');
-                game.load.image('block2', 'assets/bongbong2.png');
-                game.load.image('block3', 'assets/chips1.png');
-                game.load.spritesheet('falle', 'assets/falle3.png', 83, 40);
-                game.load.spritesheet('tree', 'assets/tree2.png', 95, 150);
-                game.load.spritesheet('herz', 'assets/herzen.png', 39, 39);
-                
-                game.load.audio('bgmusic', 'assets/cuteInGame.ogg');
-                game.load.audio('foot1', 'assets/chewFood1.ogg');
-                game.load.audio('foot2', 'assets/chewFood2.ogg');
-                game.load.audio('fail', 'assets/fail.ogg');
+        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL; 
+                       
+        game.load.spritesheet('gras', 'assets/gras7.png', 70, 40);
+        game.load.spritesheet('player', 'assets/hamster2.png', 80, 56);
+        game.load.spritesheet('cloud', 'assets/cloud.png', 127, 71);
+        game.load.image('coin', 'assets/kaese3.png');
+        game.load.image('coin2', 'assets/gurke4.png');
+        game.load.image('coin3', 'assets/Karotte3.png');
+        game.load.image('block', 'assets/schokolade3.png');
+        game.load.image('block2', 'assets/bongbong2.png');
+        game.load.image('block3', 'assets/chips1.png');
+        game.load.spritesheet('falle', 'assets/falle4.png', 83, 56);
+        game.load.spritesheet('tree', 'assets/tree2.png', 95, 150);
+        game.load.spritesheet('herz', 'assets/herzen.png', 39, 39);
+
+        game.load.audio('bgmusic', 'assets/cuteInGame.ogg');
+        game.load.audio('foot1', 'assets/chewFood1.ogg');
+        game.load.audio('foot2', 'assets/chewFood2.ogg');
+        game.load.audio('fail', 'assets/fail.ogg');
                 
 },              
 	create: function() {
@@ -78,7 +81,7 @@ var theGame = {
             var timer = game.rnd.integerInRange(0, 165);
             var timerEny = game.rnd.integerInRange(0, 120);
             var timerCloud = game.rnd.integerInRange(0, 50);
-            var timerFalle = game.rnd.integerInRange(0, 300);
+            var timerFalle = game.rnd.integerInRange(45, 55);
             
             game.physics.arcade.collide(player, gras, function() {
                 player.angle = 0;
@@ -100,7 +103,7 @@ var theGame = {
                jump = 'down';   
             }
 
-            /*
+            
             game.physics.arcade.overlap(player, coins, function(player, coin) {
                 if (isDead) { 
                     return;
@@ -117,9 +120,9 @@ var theGame = {
                 killPoint();
                 playChew();
                 block.kill();
-            });*/
+            });
             
-            /* game.physics.arcade.overlap(player, fallen, function(player, falle, points) {
+            game.physics.arcade.overlap(player, fallen, function(player, falle, points) {
                 if (isDead) { 
                     return;
                 }
@@ -129,7 +132,7 @@ var theGame = {
                 tot = 'falle';
                 killHamster();
                 
-            });*/
+            });
 
             if((game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) && (!lock || double <= 1) && !isDead) {
                 lock = true;
@@ -156,7 +159,6 @@ var theGame = {
             if(player.position.y < 163 && !isDead) {
                     double = 2;
                     lock = true;
-                    //console.log('true');
                 }
             } else {
                 lock = false;
@@ -175,11 +177,11 @@ var theGame = {
                 createCloud();
             }
 
-            /* if(timerFalle == 50 && !isWin && !isDead) {
+            if(timerFalle == 50 && !isWin && !isDead) {
                 if(fallen.children.length < 1) {
                     addNewFalle();
                 }
-            }*/
+            }
             
             if(coin.position.x <= -25) {
                 coin.kill();
@@ -189,10 +191,10 @@ var theGame = {
                 cloud.kill();
             }
             
-            /*if(falle.position.x <= -25) {
+            if(falle.position.x <= -25) {
                 falle.kill();
                 fallen.children.length = 0;
-            }*/
+            }
             
             if(block.position.x <= -25) {
                 block.kill();
@@ -226,20 +228,25 @@ var theGame = {
                 text.setText('WIN!');
                 restart.setText('Push Enter to Restart');
                 coin.kill();
-                //falle.kill();
+                falle.kill();
                 block.kill();
                 isWin = true;
             }
 
 	},
 	render: function() {
+        //debugging
+        /*
            game.debug.body(player);
             for(var i =0; i < coins.children.length; i++) {
                 game.debug.body(coins.children[i])
             }
             for(var i =0; i < fallen.children.length; i++) {
                 game.debug.body(fallen.children[i])
-          }
+            }
+            for(var i =0; i < blocks.children.length; i++) {
+                game.debug.body(blocks.children[i])
+            }*/
 	}
 };
 
@@ -262,7 +269,7 @@ var addNewCoin = function() {
     coin.anchor.setTo(0.5, 0.5);
     coin.scale.setTo(0.85 * GameApp.SCALE_RATIO, 0.85 * GameApp.SCALE_RATIO);
     game.physics.arcade.enable(coin);
-    coin.body.setSize(20 * GameApp.SCALE_RATIO, 20 * GameApp.SCALE_RATIO)
+    coin.body.setSize(coin.width * COLL_BOUND_SIZE, coin.height * COLL_BOUND_SIZE, COLL_BOUND_OFFSET, COLL_BOUND_OFFSET);
 
     coins.add(coin);                
 
@@ -291,26 +298,26 @@ var addNewBlock = function() {
     block.anchor.setTo(0.5, 0.5);
 
     block.scale.setTo(0.85 * GameApp.SCALE_RATIO, 0.85 * GameApp.SCALE_RATIO);
-    block.body.setSize(20,20);
+    block.body.setSize(block.width * COLL_BOUND_SIZE, block.height * COLL_BOUND_SIZE, COLL_BOUND_OFFSET, COLL_BOUND_OFFSET);
 
     block.body.velocity.x = game.rnd.integerInRange( -525, -350);
 };
 
 var addNewFalle = function() {
     
-    falle = game.add.sprite(550, 310, 'falle', 1);
+    falle = game.add.sprite(GameApp.CANVAS_WIDTH + 20, BOTTOM - yOffset(8), 'falle', 1);
     falle.animations.add('open',[1], 1, false);
     falle.animations.add('close',[0], 1, true);
+    falle.animations.add('closeDead',[2], 1, true);
     falle.animations.play('open');
     game.physics.arcade.enable(falle);
-    falle.body.velocity.x = -200;
     fallen.add(falle);
     falle.anchor.setTo(0.4, 1);
+    falle.scale.setTo(GameApp.SCALE_RATIO, GameApp.SCALE_RATIO);
 
-    //falle.scale.setTo(0.85, 0.85);
-    falle.body.setSize(70,15);
+    falle.body.setSize(falle.width * COLL_BOUND_SIZE, falle.height * COLL_BOUND_SIZE * 0.6, COLL_BOUND_OFFSET * 0.4, COLL_BOUND_OFFSET * 2);
 
-    falle.body.velocity.x = -200;
+    falle.body.velocity.x = -300;
 };
 
 var addPoint = function() {
@@ -322,12 +329,6 @@ var killPoint = function() {
     points--;
     health--;
 };
-
-//var kill2 = function () {
-//    game.add.tween(player).to({
-//        y: 310 },
-//    500, Phaser.Easing.Linear.None, true)
-//    };
    
 var kill = function () {
     if(tot != 'falle') {
@@ -345,8 +346,10 @@ var killHamster = function () {
     points = 0;
     
     if(tot == 'falle') {
-    player.animations.play('die2');
-    window.setTimeout(kill ,2700);
+    player.kill();
+    falle.animations.play('closeDead');
+    falle.x = LEFT + xOffset(10);
+    window.setTimeout(kill, 2700);
     } else {
     game.add.tween(player).to({
             angle: 180,
@@ -376,6 +379,7 @@ var createGround = function() {
     gras.scale.setTo(GameApp.SCALE_RATIO, GameApp.SCALE_RATIO);
     gras.y = getPosition(BOTTOM, gras.height);
     gras.animations.add('bg',[0], 2, true).play();
+    game.physics.arcade.enable(gras);
 
     //tree
     tree = game.add.sprite(0, 0, 'tree', 0);
@@ -405,9 +409,7 @@ var createPlayer = function() {
     player.animations.add('jump', [0], 10, true);
     player.animations.add('fall', [1], 10, true);
     player.animations.add('die', [2], 1);
-    player.animations.add('die2', [3], 1);
     game.physics.arcade.enable(player);
-    game.physics.arcade.enable(gras);
     player.body.gravity.y = 700;
     player.body.collideWorldBounds = true;
     gras.body.mass = 700; 
