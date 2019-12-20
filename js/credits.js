@@ -2,60 +2,76 @@ var player_c, back;
 var credits = {
     preload: function() {
         game.load.spritesheet('player_c', 'assets/hamster.png', 80, 56);
-        game.load.image('back', 'assets/back.png', 125, 42);
+        game.load.image('button', 'assets/button.png', 125, 42);
         },       
         
     create: function() {
         game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         game.stage.backgroundColor = '#D0F4F7';        
         
-        var style = {font: "20px Calibri", fill: "#392c17" };
-        var styleb = {font: "bold 20px Calibiri", fill: "#a07029" };
-        var styleh = {font: "36px Calibiri", fill: "#abd2d5" };
+        var style = {font: 20 * GameApp.SCALE_RATIO + "px Calibri", fill: "#392c17" };
+        var styleb = {font: "bold " + 20 * GameApp.SCALE_RATIO + "px Calibiri", fill: "#a07029" };
+        var styleh = {font: 42 * GameApp.SCALE_RATIO + "px Calibiri", fill: "#abd2d5" };
         
-        text = game.add.text(460, 92, "CREDITS", styleh);
+        text = game.add.text(0, 0, "CREDITS", styleh);
+        text.x = getPosition(RIGHT - xOffset(2), text.height);
+        text.y = getPosition(BOTTOM - yOffset(5), text.width);
         text.anchor.setTo(0.5, 0.5);
         text.angle = -90;
         
         //Team
-        text = game.add.text(50, 45, "Team:", styleb);
-        text.anchor.setTo(0.5, 0.5);        
-        text = game.add.text(260, 46, "Anne || Edgar || Eric || Julian", style);
-        text.anchor.setTo(0.5, 0.5);
+        text = game.add.text(0, 0, "Team:", styleb);
+        text.x = getPosition(CENTER_WIDTH - xOffset(15), text.width);
+        text.y = getPosition(TOP + yOffset(10), text.height);
+
+        text = game.add.text(0, 0, "Anne || Edgar || Eric || Julian", style);
+        text.x = getPosition(CENTER_WIDTH + xOffset(5), text.width);
+        text.y = getPosition(TOP + yOffset(10), text.height);
+       
         
         //Helfer
-        text = game.add.text(50, 75, "Helfer:", styleb);
-        text.anchor.setTo(0.5, 0.5);        
-        text = game.add.text(189, 76, "Heiko || Alex", style);
-        text.anchor.setTo(0.5, 0.5);
+        text = game.add.text(0, 0, "Helfer:", styleb);
+        text.x = getPosition(CENTER_WIDTH - xOffset(15), text.width);
+        text.y = getPosition(TOP + yOffset(16), text.height);
+
+        text = game.add.text(0, 0, "Heiko || Alex", style);
+        text.x = getPosition(CENTER_WIDTH + xOffset(5), text.width);
+        text.y = getPosition(TOP + yOffset(16), text.height);
         
         //Sounds
         text = game.add.text(50, 114, "Sounds:", styleb);
-        text.anchor.setTo(0.5, 0.5);        
+        text.x = getPosition(CENTER_WIDTH - xOffset(15), text.width);
+        text.y = getPosition(TOP + yOffset(25), text.height);
+
         text = game.add.text(225, 115, "https://freesound.org\n\http://bensound.com", style);
-        text.anchor.setTo(0.5, 0.5);
+        text.x = getPosition(CENTER_WIDTH + xOffset(5), text.width);
+        text.y = getPosition(TOP + yOffset(25), text.height);
         
         //Textures
         text = game.add.text(50, 169, "Textures:", styleb);
-        text.anchor.setTo(0.5, 0.5);        
+        text.x = getPosition(CENTER_WIDTH - xOffset(15), text.width);
+        text.y = getPosition(TOP + yOffset(37), text.height);
+
         text = game.add.text(234, 169, "Minecraft\n\http://opengameart.org", style);
-        text.anchor.setTo(0.5, 0.5);
+        text.x = getPosition(CENTER_WIDTH + xOffset(5), text.width);
+        text.y = getPosition(TOP + yOffset(37), text.height);
         
         //Misc
         text = game.add.text(50, 211, "Misc:", styleb);
-        text.anchor.setTo(0.5, 0.5);        
+        text.x = getPosition(CENTER_WIDTH - xOffset(15), text.width);
+        text.y = getPosition(TOP + yOffset(46), text.height);
+
         text = game.add.text(201, 211, "http://phaser.io", style);
-        text.anchor.setTo(0.5, 0.5);
+        text.x = getPosition(CENTER_WIDTH + xOffset(5), text.width);
+        text.y = getPosition(TOP + yOffset(46), text.height);
         
         //Hamster
-        player_c = game.add.sprite(350, 185, 'player_c', 0);
+        player_c = game.add.sprite(0, 0, 'player_c', 0);
+        player_c.scale.setTo(1.1 * GameApp.SCALE_RATIO, 1.1 * GameApp.SCALE_RATIO);
+        player_c.x = getPosition(RIGHT - xOffset(14), player_c.width);
+        player_c.y = getPosition(BOTTOM - yOffset(20), player_c.height);
         player_c.animations.add('running', [0, 1], 8, true).play();
         
-        back = game.add.button(325, 255, 'back', actionOnClick3, this);
+        back = new Button(game, RIGHT - xOffset(14), BOTTOM - yOffset(8), 'Back', 'newGame');
     }
 };
-
-var actionOnClick3 = function () { 
-                music2.destroy();
-                game.state.start('newGame');
-            };

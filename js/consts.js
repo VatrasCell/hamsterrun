@@ -20,7 +20,8 @@ if (GameApp.USE_DEVICE_PIXEL_RATIO) {
 	GameApp.SCALE_RATIO = GameApp.CANVAS_WIDTH / GameApp.CANVAS_HEIGHT;
 }*/
 GameApp.SCALE_RATIO = GameApp.CANVAS_WIDTH / 1030;
-console.log(GameApp.SCALE_RATIO);
+
+var musicVolume = 0.5;
 
 const LEFT = 0;
 const TOP = 0;
@@ -46,4 +47,8 @@ function yOffset(percent) {
  */
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
+}
+
+function mapRange(value, low1, high1, low2, high2) {
+    return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 }

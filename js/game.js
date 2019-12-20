@@ -1,13 +1,21 @@
-var player, oldPos, cheese, gras, baum, cloud, eny, text, restart, music, chew, falle;
+var player, oldPos, cheese, gras, baum, cloud, eny, text, restart, music, chew, falle, slider;
 var points = 0;
 var health = 0;
 var extra = 1;
 var herz;
 var tot;
-var lock = false;
-var double = 0;
+var isKeyDown = false;
+var double = 1;
 var isDead = false;
 var isWin = false;
+
+var keyJump;
+var jumpForceTimer = 0;
+
+var timer;
+var timerEny;
+var timerCloud;
+var timerFalle;
 
 const COLL_BOUND_SIZE = 0.5 * GameApp.SCALE_RATIO;
 const COLL_BOUND_OFFSET = 7 * GameApp.SCALE_RATIO;
@@ -25,6 +33,7 @@ var theGame = {
         game.load.image('block', 'assets/schokolade3.png');
         game.load.image('block2', 'assets/bongbong2.png');
         game.load.image('block3', 'assets/chips1.png');
+        game.load.image('sliderButton', 'assets/sliderButton.png', 47, 47);
         game.load.spritesheet('falle', 'assets/falle4.png', 83, 56);
         game.load.spritesheet('tree', 'assets/tree2.png', 95, 150);
         game.load.spritesheet('herz', 'assets/herzen.png', 39, 39);
@@ -36,235 +45,251 @@ var theGame = {
                 
 },              
 	create: function() {
-                game.stage.backgroundColor = '#D0F4F7';
-                
-                music = game.sound.play('bgmusic');
-                music.loopFull();
-                music.volume = 0.7;
+        game.stage.backgroundColor = '#D0F4F7';
+             
+        if(music2 != null) {
+            music2.destroy();
+        }
+        music = game.sound.play('bgmusic');
+        music.loopFull();
 
-                clouds = game.add.physicsGroup();
-                createCloud();
+        keyJump = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
-                createGround();
-                
-                coins = game.add.physicsGroup();
-                addNewCoin();
-                
-                blocks = game.add.physicsGroup();
-                addNewBlock();
+        timer = new Timer(750, 1000);
+        timerEny = new Timer(2000, 2500);
+        timerCloud = new Timer(500, 750);
+        timerFalle = new Timer(20000, 30000);
+        
+        clouds = game.add.physicsGroup();
+        createCloud();
+        
+        createGround();
+        
+        coins = game.add.physicsGroup();
+        addNewCoin();
+        
+        blocks = game.add.physicsGroup();
+        addNewBlock();
+        
+        createHeart();
+        
+        createPlayer();
+        
+        createPointLabel();
+        
+        fallen = game.add.physicsGroup();
+        
+        addNewFalle();
+        falle.kill();
+        fallen.children.length = 0;
+        
+        coin.anchor.setTo(0.5, 0.5);
+        tree.anchor.setTo(0.5, 0.5);
 
-                createHeart();
+        var style = { font: 25 * GameApp.SCALE_RATIO + "px Calibri", fill: "#3c2f1b", 
+            boundsAlignH: "center", boundsAlignV: "middle" };
+        restart = game.add.text(0, 0, "", style);
+        restart.x = getPosition(CENTER_WIDTH, text.width);
+        restart.y = getPosition(CENTER_HEIGHT, text.height);
+        
+        oldPos = Math.round(player.position.y);
+        
+        block.animations.add('byBlock' [0,1,2], 10, true);
 
-                createPlayer();
+        slider = new Slider(game, RIGHT - xOffset(5), TOP + yOffset(12), 3 * GameApp.SCALE_RATIO, 40 * GameApp.SCALE_RATIO);
 
-                createPointLabel();
-  
-                fallen = game.add.physicsGroup();
-                
-                addNewFalle();
-                falle.kill();
-                fallen.children.length = 0;
-
-                coin.anchor.setTo(0.5, 0.5);
-                tree.anchor.setTo(0.5, 0.5);
-                
-                restart = game.add.text(200, 200, '');
-
-                oldPos = player.position.y;
-
-                block.animations.add('byBlock' [0,1,2], 10, true);
 	},
 	update: function() {
-            var isJump = false;
-            var jump = null;
-            var posY = player.position.y;
-            var timer = game.rnd.integerInRange(0, 165);
-            var timerEny = game.rnd.integerInRange(0, 120);
-            var timerCloud = game.rnd.integerInRange(0, 50);
-            var timerFalle = game.rnd.integerInRange(45, 55);
-            
-            game.physics.arcade.collide(player, gras, function() {
-                player.angle = 0;
-            });
-            
-            if(oldPos > posY && !isDead) {
-               isJump = true;
-               oldPos = posY;
-               player.animations.play('jump');
-               player.angle -= 0.5;
-               jump = 'up';
-            }
-            
-            if(oldPos < posY && !isDead) {
-               isJump = true;
-               oldPos = posY;
-               player.animations.play('fall');
-               player.angle += 1.3;
-               jump = 'down';   
-            }
 
-            
-            game.physics.arcade.overlap(player, coins, function(player, coin) {
-                if (isDead) { 
-                    return;
-                }
-                addPoint();
-                playChew();
-                coin.kill();
-            });
-            
-            game.physics.arcade.overlap(player, blocks, function(player, block, points) {
-                if (isDead) { 
-                    return;
-                }
-                killPoint();
-                playChew();
-                block.kill();
-            });
-            
-            game.physics.arcade.overlap(player, fallen, function(player, falle, points) {
-                if (isDead) { 
-                    return;
-                }
-                falle.animations.play('close');
-                falle.body.velocity.x = 0;
-                falle.position.x = 50;
-                tot = 'falle';
-                killHamster();
-                
-            });
+        music.volume = musicVolume;
 
-            if((game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) && (!lock || double <= 1) && !isDead) {
-                lock = true;
-                player.body.velocity.y = -500;
+        var jump = null;
+        var posY = Math.round(player.position.y);
+        
+        if(oldPos > posY && !isDead) {
+            oldPos = posY;
+            player.animations.play('jump');
+            player.angle -= 0.5;
+            jump = 'up';
+        }
+        
+        if(oldPos < posY && !isDead) {
+            oldPos = posY;
+            player.animations.play('fall');
+            player.angle += 1.3;
+            jump = 'down';   
+        }
+        
+        game.physics.arcade.collide(player, gras, function() {
+            player.angle = 0;
+            player.animations.play('running');
+        });
+        
+        game.physics.arcade.overlap(player, coins, function(player, coin) {
+            if (isDead) { 
+                return;
             }
-            
-            if((game.input.keyboard.isDown(Phaser.Keyboard.ENTER)) && isWin) {
-                //game.state.start('newGame');
-                window.location.reload();
-                music.destroy();
+            addPoint();
+            playChew();
+            coin.kill();
+        });
+        
+        game.physics.arcade.overlap(player, blocks, function(player, block, points) {
+            if (isDead) { 
+                return;
             }
-
-            if (!isJump && jump != 'down' && jump != 'up' && !isDead) {
-                player.animations.play('running');
-                
-            } 
-            
-            if(player.position.y < 262 && !isDead) {
-            lock = true;
-            double = 1;
-                if(jump == 'down') {
-                    double = 5;
+            killPoint();
+            playChew();
+            block.kill();
+        });
+        
+        game.physics.arcade.overlap(player, fallen, function(player, falle, points) {
+            if (isDead) { 
+                return;
+            }
+            falle.animations.play('close');
+            falle.body.velocity.x = 0;
+            falle.position.x = 50;
+            tot = 'falle';
+            killHamster();
+        
+        });
+        
+        game.input.keyboard.onDownCallback = function(e) {
+            if(e.keyCode == keyJump.keyCode && !isKeyDown) {
+                if(player.body.touching.down) {
+                    isKeyDown = true;
+                    jumpForceTimer = new Date();
+                    double = 1;
+                } else if(jump == 'down' && player.angle < 7 && player.angle >= -7 && double > 0) {
+                    double--;
+                    isKeyDown = true;
+                    jumpForceTimer = new Date();
                 }
-            if(player.position.y < 163 && !isDead) {
-                    double = 2;
-                    lock = true;
-                }
-            } else {
-                lock = false;
-                double = 0;
-            }
-            
-            if(timer == 5 && !isWin && !isDead) {
-                addNewCoin();
-            }
-            
-            if(timerEny == 15 && !isWin && !isDead) {
-                addNewBlock();
-            }
-
-            if(timerCloud == 15) {
-                createCloud();
-            }
-
-            if(timerFalle == 50 && !isWin && !isDead) {
-                if(fallen.children.length < 1) {
-                    addNewFalle();
-                }
-            }
-            
-            if(coin.position.x <= -25) {
-                coin.kill();
-            }
-
-            if(cloud.position.x <= -25) {
-                cloud.kill();
-            }
-            
-            if(falle.position.x <= -25) {
-                falle.kill();
-                fallen.children.length = 0;
-            }
-            
-            if(block.position.x <= -25) {
-                block.kill();
-            }
-            
-            text.setText(points + '/20');
-            
-            if(health >= 10) {
-                health = 0;
-                extra = 1;
-            }
-            
-            if(points < 0) {
-                if(extra == 1) {
-                    extra = 0;
-                    health = 0;
-                    points = 0;
+            }        
+        };
+        
+        game.input.keyboard.onUpCallback = function(e) {         
+            if(e.keyCode == keyJump.keyCode && isKeyDown) {
+                jumpForceTimer = new Date() - jumpForceTimer;
+                if(jumpForceTimer > 180) {
+                    player.body.velocity.y = -700;
                 } else {
-                    tot = 'anders';
-                killHamster();
+                    player.body.velocity.y = -550;
                 }
+                isKeyDown = false;
+                jumpForceTimer = 0;     
+            }        
+        };
+        
+        if((game.input.keyboard.isDown(Phaser.Keyboard.ENTER)) && isWin) {
+            //game.state.start('newGame');
+            window.location.reload();
+            music.destroy();
+        }
+        
+        if(timer.isTimeOver() && !isWin && !isDead) {
+            addNewCoin();
+        }
+        
+        if(timerEny.isTimeOver() && !isWin && !isDead) {
+            addNewBlock();
+        }
+        
+        if(timerCloud.isTimeOver()) {
+            createCloud();
+        }
+        
+        if(timerFalle.isTimeOver() && !isWin && !isDead) {
+            if(fallen.children.length < 1) {
+                addNewFalle();
             }
-            
+        }
+        
+        if(coin.position.x <= -25) {
+            coin.kill();
+        }
+        
+        if(cloud.position.x <= -25) {
+            cloud.kill();
+        }
+        
+        if(falle.position.x <= -25) {
+            falle.kill();
+            fallen.children.length = 0;
+        }
+        
+        if(block.position.x <= -25) {
+            block.kill();
+        }
+        
+        text.setText(points + '/20');
+        
+        if(health >= 10) {
+            health = 0;
+            extra = 1;
+        }
+        
+        if(points < 0) {
             if(extra == 1) {
-                herz.animations.play('full');
+                extra = 0;
+                health = 0;
+                points = 0;
             } else {
-                herz.animations.play('null');
+                tot = 'anders';
+                //killHamster();
             }
-            
-            if(points >= 20) {
-                text.setText('WIN!');
-                restart.setText('Push Enter to Restart');
-                coin.kill();
-                falle.kill();
-                block.kill();
-                isWin = true;
-            }
-
+        }
+        
+        if(extra == 1) {
+            herz.animations.play('full');
+        } else {
+            herz.animations.play('null');
+        }
+        
+        if(points >= 20) {
+            text.setText('WIN!');
+            restart.setText('Push Enter to Restart');
+            coin.kill();
+            falle.kill();
+            block.kill();
+            isWin = true;
+        }
+        
 	},
 	render: function() {
         //debugging
         /*
-           game.debug.body(player);
-            for(var i =0; i < coins.children.length; i++) {
-                game.debug.body(coins.children[i])
-            }
-            for(var i =0; i < fallen.children.length; i++) {
-                game.debug.body(fallen.children[i])
-            }
-            for(var i =0; i < blocks.children.length; i++) {
-                game.debug.body(blocks.children[i])
-            }*/
+        game.debug.body(player);
+        for(var i =0; i < coins.children.length; i++) {
+            game.debug.body(coins.children[i])
+        }
+        for(var i =0; i < fallen.children.length; i++) {
+            game.debug.body(fallen.children[i])
+        }
+        for(var i =0; i < blocks.children.length; i++) {
+            game.debug.body(blocks.children[i])
+        }*/
 	}
+    
 };
 
 var addNewCoin = function() {
-    var y = game.rnd.integerInRange(TOP + yOffset(10), TOP + yOffset(60));
+    var y = game.rnd.integerInRange(TOP + yOffset(8), BOTTOM - yOffset(40));
     var i = game.rnd.integerInRange(0, 2);
+
     var texture;
-    
+
     if (i == 0) {
         texture = 'coin';
     }
-     if(i == 1) {
+    if(i == 1) {
         texture = 'coin2';
     }
-     if(i == 2) {
+    if(i == 2) {
         texture = 'coin3';
     }
-    
+
     coin = game.add.sprite(GameApp.CANVAS_WIDTH + 20, y, texture);
     coin.anchor.setTo(0.5, 0.5);
     coin.scale.setTo(0.85 * GameApp.SCALE_RATIO, 0.85 * GameApp.SCALE_RATIO);
@@ -277,7 +302,7 @@ var addNewCoin = function() {
 };
 
 var addNewBlock = function() {
-    var y = game.rnd.integerInRange(TOP + yOffset(20), TOP + yOffset(70));
+    var y = game.rnd.integerInRange(TOP + yOffset(12), BOTTOM - yOffset(42));
     
     var i = game.rnd.integerInRange(0, 2);
     var texture;
@@ -315,7 +340,7 @@ var addNewFalle = function() {
     falle.anchor.setTo(0.4, 1);
     falle.scale.setTo(GameApp.SCALE_RATIO, GameApp.SCALE_RATIO);
 
-    falle.body.setSize(falle.width * COLL_BOUND_SIZE, falle.height * COLL_BOUND_SIZE * 0.6, COLL_BOUND_OFFSET * 0.4, COLL_BOUND_OFFSET * 2);
+    falle.body.setSize(falle.width * COLL_BOUND_SIZE, falle.height * COLL_BOUND_SIZE * 0.4, COLL_BOUND_OFFSET * 0.4, COLL_BOUND_OFFSET * 4);
 
     falle.body.velocity.x = -300;
 };
@@ -370,6 +395,7 @@ var playChew = function() {
     }
     
     chew = game.sound.play(sound);
+    chew.volume = musicVolume;
 };
 
 var createGround = function() {
@@ -437,7 +463,6 @@ var createCloud = function() {
     var size = getRandomArbitrary(0.5, 2.1);
     cloud.scale.setTo(size * GameApp.SCALE_RATIO, size * GameApp.SCALE_RATIO);
     game.physics.arcade.enable(cloud);
-    //cloud.body.setSize(20,20)
 
     clouds.add(cloud);                
 

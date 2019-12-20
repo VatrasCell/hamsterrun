@@ -1,15 +1,22 @@
-var music2, player_s, button;
+var music2, player_s, button, slider;
 var newGame = {
     preload: function() {
         game.load.audio('startmusic', 'assets/cuteStartScreen.ogg');
         game.load.spritesheet('player_s', 'assets/hamster.png', 80, 56);
-        game.load.image('play', 'assets/play.png', 125, 42);
-        game.load.image('credits', 'assets/credits.png', 125, 42);
+        game.load.image('button', 'assets/button.png', 125, 42);
+        game.load.image('sliderButton', 'assets/sliderButton.png', 47, 47);
     },
     create: function() {
         game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         game.stage.backgroundColor = '#D0F4F7';
+        if(music2 != null) {
+            music2.destroy();
+        }
         music2 = game.sound.play('startmusic');
+        music2.loopFull();
+        music2.resume();
+
+        slider = new Slider(game, RIGHT - xOffset(5), CENTER_HEIGHT - yOffset(3), 3 * GameApp.SCALE_RATIO, 40 * GameApp.SCALE_RATIO);
         
         var style = { font: "bold " + 70 * GameApp.SCALE_RATIO + "px Calibiri", fill: "#a07029", 
             boundsAlignH: "center", boundsAlignV: "middle" };
@@ -28,16 +35,10 @@ var newGame = {
         text = game.add.text(0, 0, "PlayerZ", style);
         text.x = getPosition(RIGHT - xOffset(5), text.width);
         text.y = getPosition(BOTTOM - yOffset(5), text.height);
-        
-        play = game.add.button(0, 0, 'play', actionOnClick1, this);
-        play.scale.setTo(GameApp.SCALE_RATIO, GameApp.SCALE_RATIO);
-        play.x = getPosition(RIGHT - xOffset(10), play.width);
-        play.y = getPosition(TOP + yOffset(10), play.height);
 
-        credits = game.add.button(0, 0, 'credits', actionOnClick2, this);
-        credits.scale.setTo(GameApp.SCALE_RATIO, GameApp.SCALE_RATIO);
-        credits.x = getPosition(RIGHT - xOffset(10), play.width);
-        credits.y = getPosition(TOP + yOffset(25), play.height);
+        play = new Button(game, RIGHT - xOffset(10), TOP + yOffset(10), '► Play', 'theGame');
+        credits = new Button(game, RIGHT - xOffset(10), TOP + yOffset(25), 'Credits', 'credits');
+        settings = new Button(game, RIGHT - xOffset(10), TOP + yOffset(40), 'Controls', 'settings');
         
         //Hamster
         player_s = game.add.sprite(0, 0, 'player_s', 0);
@@ -48,13 +49,20 @@ var newGame = {
         player_s.y = getPosition(CENTER_HEIGHT - yOffset(20), player_s.height);
 
     },
+    update: function() {
+        music2.volume = musicVolume;
+    },
 };
 
 var actionOnClick1 = function () { 
-                game.state.start('theGame');
-                music2.destroy();
-            }
+    game.state.start('theGame');
+    music2.destroy();
+}
             
 var actionOnClick2 = function () { 
-                game.state.start('credits');
-            }
+    game.state.start('credits');
+}
+
+var actionOnClick45 = function () { 
+    game.state.start('settings');
+}

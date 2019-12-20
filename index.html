@@ -14,17 +14,22 @@
 	
 	<script type="text/javascript" src="js/phaser.min.js"></script>
 	<script type="text/javascript" src="js/consts.js"></script>
+	<script type="text/javascript" src="js/timer.js"></script>
+	<script type="text/javascript" src="js/button.js"></script>
+	<script type="text/javascript" src="js/slider.js"></script>
     <script type="text/javascript" src="js/newGame.js"></script>
 	<script type="text/javascript" src="js/game.js"></script>
     <script type="text/javascript" src="js/gameover.js"></script>
-    <script type="text/javascript" src="js/credits.js"></script>
+	<script type="text/javascript" src="js/credits.js"></script>
+	<script type="text/javascript" src="js/settings.js"></script>
 	<script type="text/javascript">
 		var game = null;
 		window.addEventListener('load', function() {
-			game = new Phaser.Game(GameApp.CANVAS_WIDTH, GameApp.CANVAS_HEIGHT, Phaser.CANVAS, 'the-game', theGame, false, false);
+			game = new Phaser.Game(GameApp.CANVAS_WIDTH, GameApp.CANVAS_HEIGHT, Phaser.CANVAS, 'the-game', newGame, false, false);
                            game.state.add('theGame', theGame);
                             game.state.add('newGame', newGame);
-                            game.state.add('credits', credits);
+							game.state.add('credits', credits);
+							game.state.add('settings', settings);
                             game.state.add('gameover', gameover);
 							
 		});
@@ -35,7 +40,6 @@
 			margin: 0;
 			padding: 0;
 			overflow: hidden;
-			background-color: bisque;
 		}
 	</style>
 	</head>
