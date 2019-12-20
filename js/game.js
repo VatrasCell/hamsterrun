@@ -173,9 +173,9 @@ var theGame = {
             if(e.keyCode == keyJump.keyCode && isKeyDown) {
                 jumpForceTimer = new Date() - jumpForceTimer;
                 if(jumpForceTimer > 180) {
-                    player.body.velocity.y = -700 * GameApp.SCALE_RATIO;
+                    player.body.velocity.y = -700 * GameApp.SPEED_RATIO;
                 } else {
-                    player.body.velocity.y = -550 * GameApp.SCALE_RATIO;
+                    player.body.velocity.y = -550 * GameApp.SPEED_RATIO;
                 }
                 isKeyDown = false;
                 jumpForceTimer = 0;     
@@ -298,7 +298,7 @@ var addNewCoin = function() {
 
     coins.add(coin);                
 
-    coin.body.velocity.x = game.rnd.integerInRange( -450, -300) * GameApp.SCALE_RATIO;
+    coin.body.velocity.x = game.rnd.integerInRange( -450, -300) * GameApp.SPEED_RATIO;
 };
 
 var addNewBlock = function() {
@@ -325,7 +325,7 @@ var addNewBlock = function() {
     block.scale.setTo(0.85 * GameApp.SCALE_RATIO, 0.85 * GameApp.SCALE_RATIO);
     block.body.setSize(block.width * COLL_BOUND_SIZE, block.height * COLL_BOUND_SIZE, COLL_BOUND_OFFSET, COLL_BOUND_OFFSET);
 
-    block.body.velocity.x = game.rnd.integerInRange( -525, -350) * GameApp.SCALE_RATIO;
+    block.body.velocity.x = game.rnd.integerInRange( -525, -350) * GameApp.SPEED_RATIO;
 };
 
 var addNewFalle = function() {
@@ -342,7 +342,7 @@ var addNewFalle = function() {
 
     falle.body.setSize(falle.width * COLL_BOUND_SIZE, falle.height * COLL_BOUND_SIZE * 0.4, COLL_BOUND_OFFSET * 0.4, COLL_BOUND_OFFSET * 4);
 
-    falle.body.velocity.x = -300 * GameApp.SCALE_RATIO;
+    falle.body.velocity.x = -300 * GameApp.SPEED_RATIO;
 };
 
 var addPoint = function() {

@@ -20,6 +20,7 @@ if (GameApp.USE_DEVICE_PIXEL_RATIO) {
 	GameApp.SCALE_RATIO = GameApp.CANVAS_WIDTH / GameApp.CANVAS_HEIGHT;
 }*/
 GameApp.SCALE_RATIO = GameApp.CANVAS_WIDTH / 1030;
+GameApp.SPEED_RATIO = GameApp.SCALE_RATIO * 0.6 < 1 ? 1 : GameApp.SCALE_RATIO * 0.6;
 
 var musicVolume = 0.5;
 
