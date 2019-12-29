@@ -237,7 +237,7 @@ var theGame = {
                 points = 0;
             } else {
                 tot = 'anders';
-                //killHamster();
+                killHamster();
             }
         }
         
